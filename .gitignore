@@ -11,6 +11,7 @@ API/appsetting*
 API/Properties
 API/Program*
 API/Start*
+*.db
 
 # User-specific files
 *.rsuser

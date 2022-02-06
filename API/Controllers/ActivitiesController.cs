@@ -2,12 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Domain;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Persistance;
 
 namespace API.Controllers
 {
+    [EnableCors]
     public class ActivitiesController : BaseApiController
     {
         private readonly DataContext _context;

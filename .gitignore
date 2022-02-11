@@ -13,6 +13,7 @@ API/Program*
 API/Start*
 *.db
 API/extensions
+.vscode
 
 # User-specific files
 *.rsuser

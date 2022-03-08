@@ -19,6 +19,7 @@ export default observer(function ActivityListItemAttendee({attendees}: Props) {
         <List horizontal>
             {attendees.map(attendee => (
                 <Popup
+                
                     hoverable
                     key={attendee.username}
                     trigger={

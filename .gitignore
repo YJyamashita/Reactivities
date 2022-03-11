@@ -15,6 +15,7 @@ API/Start*
 API/extensions
 .vscode
 .env*
+wwwroot
 
 # User-specific files
 *.rsuser

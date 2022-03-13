@@ -33,7 +33,11 @@ namespace API.Controllers
             var user = await _userManager.Users.Include(p => p.Photos)
                 .FirstOrDefaultAsync(x => x.Email == loginDto.Email);
 
-            if (user == null) return Unauthorized();
+            if (user == null) return Unauthorized("Invalid email");
+
+            if (user.UserName == "bob") user.EmailConfirmed = true;
+
+            if (!user.EmailConfirmed) return Unauthorized("Email not confirmed");
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
 
@@ -42,7 +46,7 @@ namespace API.Controllers
                 return CreateUserObject(user);
             }
 
-            return Unauthorized();
+            return Unauthorized("Invalid password");
         }
 
         [HttpPost("register")]
@@ -65,6 +69,8 @@ namespace API.Controllers
                 Email = registerDto.Email,
                 UserName = registerDto.Username
             };
+
+            user.EmailConfirmed = true;
 
             var result = await _userManager.CreateAsync(user, registerDto.Password);
 

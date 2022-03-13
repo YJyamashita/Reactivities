@@ -6,6 +6,7 @@ import { store } from '../stores/store';
 import { User, UserFormValues } from '../../app/models/user';
 import { Photo, Profile, UserActivity } from '../models/profile';
 import { PaginatedResult } from '../models/pagination';
+import { request } from 'http';
 
 const sleep = (delay: number) => {
     return new Promise((resolve) => {
@@ -85,7 +86,11 @@ const Activities = {
 const Account = {
     current: () => requests.get<User>('/account'),
     login: (user: UserFormValues) => requests.post<User>('/account/login', user),
-    register: (user: UserFormValues) => requests.post<User>('/account/register', user)
+    register: (user: UserFormValues) => requests.post<User>('/account/register', user),
+    verifyEmail: (token: string, email: string) => 
+        requests.post<void>(`/account/verifyEmail?token=${token}&email=${email}`, {}),
+    resendEmailConfirm: (email: string) =>
+        requests.get(`/account/resendEmailConfirmationLink?email=${email}`)
 }
 
 const Profiles = {

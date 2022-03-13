@@ -73,27 +73,34 @@ namespace API.Controllers
             ModelState.AddModelError("email", "Email taken");
             return ValidationProblem();
         }
+
         if (await _userManager.Users.AnyAsync(x => x.UserName == registerDto.Username))
         {
             ModelState.AddModelError("username", "Username taken");
             return ValidationProblem();
         }
+
         var user = new AppUser
         {
             DisplayName = registerDto.DisplayName,
             Email = registerDto.Email,
             UserName = registerDto.Username
         };
+
         var result = await _userManager.CreateAsync(user, registerDto.Password);
+
         if (!result.Succeeded) return BadRequest("Problem registering user");
+
         var origin = Request.Headers["origin"];
         var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
         token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+
         var verifyUrl = $"{origin}/account/verifyEmail?token={token}&email={user.Email}";
         var message = $"<p>Please click the below link to verify your email address:</p><p><a href='{verifyUrl}'>Click to verify email</a></p>";
+
         await _emailSender.SendEmailAsync(user.Email, "Please verify email", message);
         return Ok("Registration success - please verify email");
-    }
+    }    
 
     [AllowAnonymous]
     [HttpPost("verifyEmail")]
@@ -106,7 +113,7 @@ namespace API.Controllers
         var result = await _userManager.ConfirmEmailAsync(user, decodedToken);
 
         if (!result.Succeeded) return BadRequest("Could not verify email address");
-
+        
         return Ok("Email confirmed - you can now login");
     }
 

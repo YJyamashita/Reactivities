@@ -53,7 +53,7 @@ function App() {
                 <PrivateRoute path='/errors' component={TestErrors} />
                 <Route path='/server-error' component={ServerError} />
                 <Route path='/account/registerSuccess' component={RegisterSuccess} />
-                <Route path='/account/registerSuccess' component={ConfirmEmail} />
+                <Route path='/account/verifyEmail' component={ConfirmEmail} />
                 <Route component={NotFound} />
               </Switch>
             </Container>

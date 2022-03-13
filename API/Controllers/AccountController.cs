@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,17 +25,21 @@ namespace API.Controllers
         private readonly SignInManager<AppUser> _signInManager;
         private readonly TokenService _tokenService;
         private readonly IConfiguration _config;
+        private readonly HttpClient _httpClient;
         private readonly EmailSender _emailSender;
-
         public AccountController(UserManager<AppUser> userManager,
             SignInManager<AppUser> signInManager, TokenService tokenService,
             IConfiguration config, EmailSender emailSender)
         {
-            _config = config;
             _emailSender = emailSender;
+            _config = config;
             _tokenService = tokenService;
             _signInManager = signInManager;
             _userManager = userManager;
+            _httpClient = new HttpClient
+            {
+                BaseAddress = new System.Uri("https://graph.facebook.com")
+            };
         }
 
     [HttpPost("login")]
@@ -59,6 +64,7 @@ namespace API.Controllers
         return Unauthorized("Invalid password");
     }
 
+    [AllowAnonymous]
     [HttpPost("register")]
     public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
     {
@@ -72,29 +78,20 @@ namespace API.Controllers
             ModelState.AddModelError("username", "Username taken");
             return ValidationProblem();
         }
-
         var user = new AppUser
         {
             DisplayName = registerDto.DisplayName,
             Email = registerDto.Email,
             UserName = registerDto.Username
         };
-
-        user.EmailConfirmed = true;
-
         var result = await _userManager.CreateAsync(user, registerDto.Password);
-
         if (!result.Succeeded) return BadRequest("Problem registering user");
-
         var origin = Request.Headers["origin"];
         var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
         token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
-
         var verifyUrl = $"{origin}/account/verifyEmail?token={token}&email={user.Email}";
         var message = $"<p>Please click the below link to verify your email address:</p><p><a href='{verifyUrl}'>Click to verify email</a></p>";
-
         await _emailSender.SendEmailAsync(user.Email, "Please verify email", message);
-
         return Ok("Registration success - please verify email");
     }
 
